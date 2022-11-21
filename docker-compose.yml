@@ -1,0 +1,6 @@
+version: '3'
+services:
+  portfolio_frontend:
+    build: .
+    ports:
+      - '80:80'
