@@ -6,6 +6,9 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
+import NavigationBar from './components/NavigationBar';
+import Login from './screens/LoginPage';
+import Signup from './screens/LoginPage/Signup';
 import HomePage from './screens/HomePage';
 import AskQuestionPage from './screens/AskQuestionPage';
 import UserProfilePage from './screens/UserProfile';
@@ -15,7 +18,10 @@ function App() {
   return (
     <div className="App">
       <Router>
+        <NavigationBar />
         <Routes>
+          <Route exact path="/login" element={<Login />} />
+          <Route exact path="/signup" element={<Signup />} />
           <Route exact path="/" element={<HomePage />} />
           <Route exact path="/ask-question" element={<AskQuestionPage />} />
           <Route exact path="/profile" element={<UserProfilePage />} />
