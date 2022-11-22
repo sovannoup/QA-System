@@ -4,10 +4,8 @@ const skill = ['NodeJS', 'ReactJS', 'Load Balancing', 'Networking'];
 export default function Question(props) {
   return (
     <div className="w-full my-4">
-      <p className="text-black text-1xl font-bold text-black">
-        Custom Images Status Pending
-      </p>
-      <p className="text-fc text-sm">
+      <p className="text-fc text-1xl font-bold">Custom Images Status Pending</p>
+      <p className="text-black text-sm">
         I am uploading my image to backend, but it seem that it keeps on showing
         its status as pending. I have been waiting for half hour, the images is
         uploaded but face some errors. Gray colors are displayed using an equal

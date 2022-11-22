@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import Question from '../../components/Question';
 
-export default function HomePage() {
+export default function HomePage(props) {
+  let navigate = useNavigate();
+
   return (
     <div className="max-w-screen-xl mx-auto">
       {/* Home Title */}
       <div className="flex justify-center">
-        <p className="text-fc text-2xl">Questions</p>
+        <p className="text-fc text-2xl font-semibold">Questions</p>
       </div>
       <div className="flex justify-center text-fc text-xl">
         Ask a development question or answer others' in our diverse Q&A section.
@@ -38,12 +41,17 @@ export default function HomePage() {
       </div>
       <div className="flex w-9/12 justify-between mx-auto py-5">
         <div className="flex flex-row items-center">
-          <span className="mr-5 text-sm text-black">15102 Questions</span>
-          <Button text="Ask a question" />
+          <span className="mr-5 text-base text-black">15102 Questions</span>
+          <Button
+            text="Ask a question"
+            onClick={() => {
+              navigate('/ask-question');
+            }}
+          />
         </div>
         <div className="flex flex-row">
           <div className=" relative inline-block text-left dropdown p-3">
-            <span className="rounded-md shadow-sm">
+            <span className="rounded-md">
               <button
                 className="inline-flex justify-center w-full px-4 items-center text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800"
                 type="button"
@@ -69,21 +77,21 @@ export default function HomePage() {
                 <div>
                   <a
                     href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
                     role="menuitem"
                   >
                     All
                   </a>
                   <a
                     href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 border-y-2 border-gray py-2 text-base leading-5 text-left hover:bg-gray"
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 border-y-2 border-gray py-2 text-base leading-5 text-left hover:bg-gray"
                     role="menuitem"
                   >
                     Answered
                   </a>
                   <a
                     href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
                     role="menuitem"
                   >
                     Unanswered
@@ -93,7 +101,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className=" relative inline-block text-left dropdown p-3">
-            <span className="rounded-md shadow-sm">
+            <span className="rounded-md">
               <button
                 className="inline-flex justify-center w-full px-4 items-center text-sm font-medium leading-5 text-gray-700 transition duration-150 ease-in-out rounded-md hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800"
                 type="button"
@@ -119,14 +127,14 @@ export default function HomePage() {
                 <div>
                   <a
                     href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 py-2 border-b-2 border-gray text-base leading-5 text-left hover:bg-gray"
+                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 border-b-2 border-gray text-base leading-5 text-left hover:bg-gray"
                     role="menuitem"
                   >
                     Most Recent
                   </a>
                   <a
                     href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 text-base leading-5 text-left hover:bg-gray"
                     role="menuitem"
                   >
                     Popular
