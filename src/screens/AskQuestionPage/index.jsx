@@ -1,8 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TagsInput } from 'react-tag-input-component';
+import QuestionAPI from '../../api/question';
 
 export default function AskQuestion() {
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
   const [tags, setTags] = useState([]);
+
+  let navigate = useNavigate();
+
+  const onSubmit = async () => {
+    if (localStorage.getItem('token') === null) {
+      alert('Please login first to ask question');
+      return;
+    }
+    if (title === '' || body === '' || tags.length === 0) return;
+    const data = { title, body, tags };
+    await QuestionAPI.createQuestion(data)
+      .then((res) => {
+        navigate('/view-question', {
+          state: { mydata: res.data.result },
+        });
+      })
+      .catch((err) => {
+        alert('Login Required!');
+      });
+  };
 
   return (
     <div className="max-w-screen-xl mx-auto">
@@ -18,7 +42,12 @@ export default function AskQuestion() {
         </span>
         <div>
           <input
-            className="w-full border-2 border-lightGray p-3 rounded mt-2 focus:border-btn_color focus:outline-none"
+            type={'text'}
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+            }}
+            className="w-full text-darkGray border-2 border-lightGray p-3 rounded mt-2 focus:border-fc focus:outline-none"
             placeholder="How to setup automatic deployment with Git with a VPS"
           />
         </div>
@@ -31,14 +60,19 @@ export default function AskQuestion() {
         </span>
         <div>
           <input
-            className="w-full border-2 border-lightGray p-3 rounded mt-2 focus:border-btn_color focus:outline-none"
+            type={'text'}
+            value={body}
+            onChange={(e) => {
+              setBody(e.target.value);
+            }}
+            className="w-full text-fc border-2 border-lightGray p-3 rounded mt-2 focus:border-fc focus:outline-none"
             placeholder="Text Editor required"
           />
         </div>
       </div>
 
       <div className="my-5">
-        <p className="text-xl text-fc font-semibold">Tags and Topics</p>
+        <p className="text-xl text-fc font-semibold pb-2">Tags and Topics</p>
         <TagsInput
           value={tags}
           onChange={setTags}
@@ -53,7 +87,10 @@ export default function AskQuestion() {
           /> */}
       </div>
       <div className="my-5">
-        <button className="w-full py-3 border-2 border-btn_color text-btn_color rounded font-semibold mt-10">
+        <button
+          onClick={onSubmit}
+          className="w-full py-3 border-2 border-btn_color text-btn_color rounded font-semibold mt-10 hover:bg-btn_color hover:text-white"
+        >
           Post My Question
         </button>
       </div>

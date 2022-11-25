@@ -1,15 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tab } from '@headlessui/react';
 import ProfileImage from '../../assets/images/profile.jpg';
 import Question from '../../components/Question';
+import UserAPI from '../../api/user';
+import { useNavigate } from 'react-router-dom';
 const skill = ['NodeJS', 'ReactJS', 'VueJS', 'Networking', 'Docker'];
 
 export default function UserProfile() {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [result, setResult] = useState();
+
+  let navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await UserAPI.getProfile()
+        .then((res) => {
+          setResult(res.data.result);
+        })
+        .catch((err) => {
+          console.log(err);
+          throw err;
+        });
+    };
+    fetchData();
+  }, []);
   const groupChanged = (i) => {
     if (i === 2) return;
     setSelectedIndex(i);
   };
+  console.log(result);
 
   return (
     <div className="max-w-screen-xl mx-auto justify-between flex flex-row">
@@ -23,45 +43,71 @@ export default function UserProfile() {
           height={50}
         />
         <p className="text-black text-1xl font-semibold mt-5 mb-3">
-          Noup Sovan
+          {result && result.fullname}
         </p>
         <p className="text-xl text-darkGray py-3 border-b-[2px] border-gray pl-5">
-          I am a software engineer in Kirirom Institute of Technology
+          {/* {result && result.description} */}I am a software engineer in
+          Kirirom Institute of Technology
         </p>
-        <div className="self-start border-b-[2px] border-gray py-3">
-          <p className="text-fc text-base px-5 py-2">SKILLS</p>
-          <div className="flex flex-row px-5 flex-wrap">
-            {skill.map((d, i) => {
-              return (
-                <div
-                  className="flex text-sm text-darkGray items-center bg-gray mr-1 py-1 px-3 rounded my-1"
-                  key={i}
-                >
-                  {d}
-                </div>
-              );
-            })}
+        {result && (
+          <div className="w-full self-start border-b-[2px] border-gray py-3">
+            <div>
+              <p className="text-fc text-base px-5 py-2">SKILLS</p>
+              <div className="flex flex-row px-5 flex-wrap">
+                {result &&
+                  result.skill &&
+                  result.skill.map((d, i) => {
+                    return (
+                      <div
+                        className="flex text-sm text-darkGray items-center bg-gray mr-1 py-1 px-3 rounded my-1"
+                        key={i}
+                      >
+                        {d}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+            <div>
+              <p className="text-fc text-base px-5 py-2">INTEREST</p>
+              <div className="flex flex-row px-5 flex-wrap">
+                {result &&
+                  result.interest &&
+                  result.interest.map((d, i) => {
+                    return (
+                      <div
+                        className="flex text-sm text-darkGray items-center bg-gray mr-1 py-1 px-3 rounded my-1"
+                        key={i}
+                      >
+                        {d}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
         <div className="w-full self-start px-5 pt-3 pb-5 border-b-[2px] border-gray">
           <p className="text-fc text-base px-5 py-2">FOLLOW ME</p>
-          <div className="flex flex-row items-center">
-            <svg
-              className="w-4 h-4 mr-3 text-fc"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              ></path>
-            </svg>
-            <p className="text-xl text-btn_color">morakot.it</p>
-          </div>
+          {result && result.link && (
+            <div className="flex flex-row items-center">
+              <svg
+                className="w-4 h-4 mr-3 text-fc"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                ></path>
+              </svg>
+              <p className="text-xl text-btn_color">{result.link}</p>
+            </div>
+          )}
         </div>
         <div className="flex w-full justify-center items-center pt-10">
           <button className="bg-btn_color text-white rounded px-[5rem] py-3">
@@ -234,7 +280,20 @@ export default function UserProfile() {
                   </div>
                 </div>
                 <p className="text-base text-btn_color">PUBLISHED QUESTION</p>
-                <Question />
+                {/* {result &&
+                  result.question &&
+                  result.question.map((d, i) => {
+                    return 'Hiii';
+                    // <Question
+                    //   key={i}
+                    //   data={d}
+                    //   onClick={() => {
+                    //     navigate('/view-question', {
+                    //       state: { mydata: d },
+                    //     });
+                    //   }}
+                    // />
+                  })} */}
               </Tab.Panel>
               <Tab.Panel key={1}>
                 <div className="flex justify-between mx-auto py-5">
@@ -338,8 +397,8 @@ export default function UserProfile() {
                   </div>
                 </div>
                 <p className="text-base text-btn_color">PUBLISHED QUESTION</p>
-                <Question />
-                <Question />
+                {/* <Question />
+                <Question /> */}
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>

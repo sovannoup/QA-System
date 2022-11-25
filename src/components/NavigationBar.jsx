@@ -1,8 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import ProfileImage from '../assets/images/profile.jpg';
 import Button from './Button';
 import { Dialog, Transition } from '@headlessui/react';
+import UserAPI from '../api/user';
 export default function NavigationBar() {
+  const [fullname, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [cf_password, setCfPassword] = useState('');
   const [isLogin, setLogin] = useState(false);
   const [isSignup, setSignup] = useState(false);
   const [showPW, setShowPW] = useState(false);
@@ -14,6 +19,65 @@ export default function NavigationBar() {
   };
   const closeLogin = () => {
     setShowLogin(false);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setLogin(true);
+    }
+  }, []);
+
+  const onLogin = async () => {
+    if (email === '' || password === '') return;
+    const body = { email, password };
+    await UserAPI.login(body)
+      .then((res) => {
+        const data = res.data;
+        if (data.status === 200) {
+          localStorage.setItem('token', data.result.token);
+          setEmail('');
+          setPassword('');
+          setShowLogin(false);
+          setLogin(true);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const onLogout = async () => {
+    setLogin(false);
+    await localStorage.setItem('token', '');
+  };
+
+  const onSignup = async () => {
+    if (
+      email === '' ||
+      fullname === '' ||
+      password === '' ||
+      cf_password === '' ||
+      password !== cf_password
+    )
+      return;
+    const body = { fullname, email, password };
+    await UserAPI.signUp(body)
+      .then((res) => {
+        const data = res.data;
+        if (data.status === 200) {
+          setFullName('');
+          setEmail('');
+          setPassword('');
+          setCfPassword('');
+          setShowLogin(false);
+          setLogin(true);
+          alert('Please check and verify your email');
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -55,7 +119,7 @@ export default function NavigationBar() {
             <input
               type="text"
               placeholder="Search Questions"
-              className="h-full pl-12 pr-4 text-black border border-lightGray bg-gray rounded-md outline-none focus:ring-inset-2 focus:ring-2"
+              className="h-full pl-12 pr-4 text-xl text-fc border border-lightGray bg-gray rounded-md outline-none focus:ring-inset-2 focus:ring-2"
             />
           </div>
           {/* User Profile */}
@@ -95,19 +159,19 @@ export default function NavigationBar() {
                   </div>
                   <div className="py-2">
                     <a
-                      href="/"
+                      href="/profile"
                       className="text-black flex justify-between w-full pl-3 pr-5 py-2 border-b-2 border-gray text-base leading-5 text-left hover:bg-gray"
                       role="menuitem"
                     >
                       Profile
                     </a>
-                    <a
-                      href="/"
-                      className="text-black flex justify-between w-full pl-3 pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                    <span
+                      onClick={onLogout}
+                      className="text-black flex justify-between w-full pl-3 pr-5 py-2 text-base cursor-pointer leading-5 text-left hover:bg-gray"
                       role="menuitem"
                     >
                       Logout
-                    </a>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -168,16 +232,25 @@ export default function NavigationBar() {
                         <div className="space-y-6">
                           <div className="">
                             <input
-                              className=" w-full text-xl text-fc  px-4 py-3 bg-superwhite border  border-fc rounded-lg focus:outline-none focus:border-btn_color"
-                              type=""
+                              value={email}
+                              onChange={(e) => {
+                                setEmail(e.target.value);
+                              }}
+                              type="email"
                               placeholder="Email"
+                              className=" w-full text-xl text-fc  px-4 py-3 bg-superwhite border  border-fc rounded-lg focus:outline-none focus:border-btn_color"
                             />
                           </div>
 
                           <div className="relative" x-data="{ show: true }">
                             <input
+                              value={password}
+                              onChange={(e) => {
+                                setPassword(e.target.value);
+                              }}
+                              type="password"
                               placeholder="Password"
-                              className="text-base text-gray-200 px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
+                              className="text-xl text-fc px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
                             />
                             <div className="flex items-center absolute inset-y-0 right-0 mr-3  text-sm leading-5">
                               {showPW ? (
@@ -216,20 +289,18 @@ export default function NavigationBar() {
 
                           <div className="flex items-center justify-between">
                             <div className="text-sm ml-auto">
-                              <a
-                                href="#"
-                                className="text-btn_color hover:text-fc"
-                              >
+                              <span className="text-btn_color hover:text-fc cursor-pointer">
                                 Forgot your password?
-                              </a>
+                              </span>
                             </div>
                           </div>
                           <div>
                             <button
                               type="submit"
+                              onClick={onLogin}
                               className="w-8/12 mx-auto flex justify-center bg-btn_color text-base text-white  hover:opacity-60  p-3  rounded-lg tracking-wide  cursor-pointer transition ease-in duration-200"
                             >
-                              SIGNIN
+                              LOGIN
                             </button>
                           </div>
                           <div className="flex items-center justify-center space-x-2 my-5">
@@ -319,19 +390,40 @@ export default function NavigationBar() {
                             </span>
                           </p>
                         </div>
+
                         <div className="space-y-6">
                           <div className="">
                             <input
+                              value={fullname}
+                              onChange={(e) => {
+                                setFullName(e.target.value);
+                              }}
+                              type="text"
+                              placeholder="Full Name"
                               className=" w-full text-xl text-fc  px-4 py-3 bg-superwhite border  border-fc rounded-lg focus:outline-none focus:border-btn_color"
-                              type=""
-                              placeholder="Email"
+                            />
+                          </div>
+                          <div className="">
+                            <input
+                              value={email}
+                              onChange={(e) => {
+                                setEmail(e.target.value);
+                              }}
+                              type="email"
+                              placeholder="name@example.com"
+                              className=" w-full text-xl text-fc  px-4 py-3 bg-superwhite border  border-fc rounded-lg focus:outline-none focus:border-btn_color"
                             />
                           </div>
 
                           <div className="relative" x-data="{ show: true }">
                             <input
                               placeholder="Password"
-                              className="text-base text-gray-200 px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
+                              type="password"
+                              value={password}
+                              onChange={(e) => {
+                                setPassword(e.target.value);
+                              }}
+                              className="text-xl text-fc px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
                             />
                             <div className="flex items-center absolute inset-y-0 right-0 mr-3  text-sm leading-5">
                               {showPW ? (
@@ -370,8 +462,13 @@ export default function NavigationBar() {
 
                           <div className="relative" x-data="{ show: true }">
                             <input
+                              value={cf_password}
+                              onChange={(e) => {
+                                setCfPassword(e.target.value);
+                              }}
+                              type="password"
                               placeholder="Confirm Password"
-                              className="text-base text-gray-200 px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
+                              className="text-xl text-fc px-4 py-3 rounded-lg w-full bg-gray-200 focus:bg-gray-100 border border-gray-200 focus:outline-none focus:border-btn_color"
                             />
                             <div className="flex items-center absolute inset-y-0 right-0 mr-3  text-sm leading-5">
                               {showPW ? (
@@ -411,6 +508,7 @@ export default function NavigationBar() {
                           <div>
                             <button
                               type="submit"
+                              onClick={onSignup}
                               className="w-8/12 mx-auto flex justify-center bg-btn_color text-base text-white  hover:opacity-60  p-3  rounded-lg tracking-wide  cursor-pointer transition ease-in duration-200"
                             >
                               SIGN UP

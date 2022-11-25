@@ -20,6 +20,7 @@ function App() {
         <NavigationBar />
         <Routes>
           <Route exact path="/" element={<HomePage />} />
+          <Route exact path="/" element={<HomePage />} />
           <Route exact path="/ask-question" element={<AskQuestionPage />} />
           <Route exact path="/profile" element={<UserProfilePage />} />
           <Route exact path="/view-question" element={<ViewQuestionPage />} />
