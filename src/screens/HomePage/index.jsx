@@ -1,10 +1,135 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import QuestionAPI from '../../api/question';
 import Button from '../../components/Button';
 import Question from '../../components/Question';
+import Pagination from 'rc-pagination';
+import { data } from 'autoprefixer';
 
 export default function HomePage(props) {
+  const [numQuestion, setNumQuestion] = useState(0);
+  const [result, setResult] = useState([]);
+  const [answer, setAnswer] = useState(0);
+  const [popular, setPopular] = useState(0);
+
+  const [perPage, setPerPage] = useState(10);
+  const [size, setSize] = useState(perPage);
+  const [current, setCurrent] = useState(1);
+
+  const PerPageChange = (value) => {
+    setSize(value);
+    const newPerPage = Math.ceil(5);
+    if (current > newPerPage) {
+      setCurrent(newPerPage);
+    }
+  };
+
+  // const getData = (current, pageSize) => {
+  //   // Normally you should get the data from the server
+  //   return datatableUsers.slice((current - 1) * pageSize, current * pageSize);
+  // };
+
+  const PaginationChange = async (page, pageSize) => {
+    if (page === current) return;
+    setCurrent(page);
+    setSize(pageSize);
+
+    const data = { answer: answer, popular: popular, page: page - 1 };
+    await QuestionAPI.getQuestion(data)
+      .then((res) => {
+        setNumQuestion(res.data.result.numQuestion);
+        setResult((result) => [...result, ...res.data.result.questions]);
+      })
+      .catch((err) => {
+        throw err;
+      });
+  };
+
+  const PrevNextArrow = (current, type, originalElement) => {
+    if (type === 'prev') {
+      return (
+        <button>
+          <svg
+            className="w-4 h-4 cursor-pointer"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+            ></path>
+          </svg>
+        </button>
+      );
+    }
+    if (type === 'next') {
+      return (
+        <button>
+          <svg
+            className="w-4 h-4 cursor-pointer"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 5l7 7-7 7M5 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+      );
+    }
+    return originalElement;
+  };
+
   let navigate = useNavigate();
+
+  useEffect(() => {
+    return async () => {
+      const data = { answer: answer, popular: popular, page: current - 1 };
+      await QuestionAPI.getQuestion(data)
+        .then((res) => {
+          setNumQuestion(res.data.result.numQuestion);
+          setResult((result) => [...result, ...res.data.result.questions]);
+        })
+        .catch((err) => {
+          throw err;
+        });
+    };
+  }, []);
+
+  const changeAnswer = async (answer) => {
+    const data = { answer: answer, popular: popular, page: current - 1 };
+    await QuestionAPI.getQuestion(data)
+      .then((res) => {
+        setNumQuestion(res.data.result.numQuestion);
+        setResult((result) => [...result, ...res.data.result.questions]);
+      })
+      .catch((err) => {
+        throw err;
+      });
+    setAnswer(answer);
+  };
+
+  const changePopular = async (popular) => {
+    const data = { answer: answer, popular: popular, page: current - 1 };
+    await QuestionAPI.getQuestion(data)
+      .then((res) => {
+        setNumQuestion(res.data.result.numQuestion);
+        setResult((result) => [...result, ...res.data.result.questions]);
+      })
+      .catch((err) => {
+        throw err;
+      });
+    setPopular(popular);
+  };
 
   return (
     <div className="max-w-screen-xl mx-auto">
@@ -41,7 +166,9 @@ export default function HomePage(props) {
       </div>
       <div className="flex w-9/12 justify-between mx-auto py-5">
         <div className="flex flex-row items-center">
-          <span className="mr-5 text-base text-black">15102 Questions</span>
+          <span className="mr-5 text-base text-black">
+            {numQuestion ? numQuestion : 0} Questions
+          </span>
           <Button
             text="Ask a question"
             onClick={() => {
@@ -75,27 +202,33 @@ export default function HomePage(props) {
                 role="menu"
               >
                 <div>
-                  <a
-                    href="/"
-                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                  <span
+                    onClick={() => {
+                      changeAnswer(0);
+                    }}
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray cursor-pointer"
                     role="menuitem"
                   >
                     All
-                  </a>
-                  <a
-                    href="/"
-                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 border-y-2 border-gray py-2 text-base leading-5 text-left hover:bg-gray"
+                  </span>
+                  <span
+                    onClick={() => {
+                      changeAnswer(1);
+                    }}
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 border-y-2 border-gray py-2 text-base leading-5 text-left hover:bg-gray cursor-pointer"
                     role="menuitem"
                   >
                     Answered
-                  </a>
-                  <a
-                    href="/"
-                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray"
+                  </span>
+                  <span
+                    onClick={() => {
+                      changeAnswer(2);
+                    }}
+                    className="text-black flex justify-between w-full pl-3 bg-white pr-5 py-2 text-base leading-5 text-left hover:bg-gray cursor-pointer"
                     role="menuitem"
                   >
                     Unanswered
-                  </a>
+                  </span>
                 </div>
               </div>
             </div>
@@ -125,20 +258,24 @@ export default function HomePage(props) {
                 role="menu"
               >
                 <div>
-                  <a
-                    href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 border-b-2 border-gray text-base leading-5 text-left hover:bg-gray"
+                  <span
+                    onClick={() => {
+                      changePopular(0);
+                    }}
+                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 border-b-2 border-gray text-base leading-5 text-left hover:bg-gray cursor-pointer"
                     role="menuitem"
                   >
                     Most Recent
-                  </a>
-                  <a
-                    href="/"
-                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 text-base leading-5 text-left hover:bg-gray"
+                  </span>
+                  <span
+                    onClick={() => {
+                      changePopular(1);
+                    }}
+                    className="text-black flex justify-between w-full pl-3 pr-5 bg-white py-2 text-base leading-5 text-left hover:bg-gray cursor-pointer"
                     role="menuitem"
                   >
                     Popular
-                  </a>
+                  </span>
                 </div>
               </div>
             </div>
@@ -146,17 +283,35 @@ export default function HomePage(props) {
         </div>
       </div>
       <div className="flex flex-col w-9/12 justify-center mx-auto">
-        <Question />
-        <Question />
-        <Question />
-        <Question />
-        <Question />
-        <Question />
+        {result &&
+          result.map((d, i) => {
+            return (
+              <Question
+                key={i}
+                data={d}
+                onClick={() => {
+                  navigate('/view-question', {
+                    state: { mydata: d },
+                  });
+                }}
+              />
+            );
+          })}
       </div>
       <div className="flex justify-center my-5">
-        <button className="px-5 py-3 rounded text-darkGray text-sm bg-gray">
+        {/* <button className="px-5 py-3 rounded text-darkGray text-sm bg-gray">
           Load More Questions
-        </button>
+        </button> */}
+        <Pagination
+          className="pagination-data"
+          onChange={PaginationChange}
+          total={numQuestion ? numQuestion * 2 : 0}
+          current={current}
+          pageSize={size}
+          showSizeChanger={false}
+          itemRender={PrevNextArrow}
+          onShowSizeChange={PerPageChange}
+        />
       </div>
     </div>
   );

@@ -1,25 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import TrimString from '../utils/TrimString';
 const skill = ['NodeJS', 'ReactJS', 'Load Balancing', 'Networking'];
 
 export default function Question(props) {
+  const [data, setData] = useState();
+  useEffect(() => {
+    setData(props.data);
+  }, [props]);
   return (
-    <div className="w-full my-4">
-      <p className="text-fc text-1xl font-bold">Custom Images Status Pending</p>
-      <p className="text-black text-sm">
-        I am uploading my image to backend, but it seem that it keeps on showing
-        its status as pending. I have been waiting for half hour, the images is
-        uploaded but face some errors. Gray colors are displayed using an equal
-        amount of power to all of the light sources.I have been wa...
+    <div
+      className="px-3 py-3 w-full cursor-pointer hover:bg-gray"
+      onClick={props.onClick}
+    >
+      <p className="text-fc text-1xl font-bold">
+        {data && data.data.title && data.data.title}
+      </p>
+      <p className="text-black text-base py-2">
+        {data && data.data.body && TrimString(data.data.body, 230) + ' ...'}
       </p>
       <div className="flex flex-row">
         <div>
-          <span className="text-sm text-btn_color">1 answer</span>
+          <span className="text-sm text-btn_color">
+            {data && data.data.numAnswer && data.data.numAnswer} answer
+          </span>
         </div>
         <div className="flex ml-4 items-center">
-          <li className="text-sm text-black">a day ago</li>
+          <li className="text-sm text-black">
+            {data && data.data.created && data.data.created}
+          </li>
         </div>
         <div className="flex ml-4 items-center">
-          <li className="text-sm text-black">By Noup Sovan</li>
+          <li className="text-sm text-black">
+            By {data && data.fullname && data.fullname}
+          </li>
         </div>
         {skill.map((d, i) => {
           return (
